@@ -7,17 +7,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Runs on the latest Ubuntu image
+    container:
+      image: docker:19.03.12  # Use Docker image to run the job (no VM required)
+      options: --entrypoint ""  # Override the default entrypoint
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2  # Check out the repository code
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2  # Set up Docker Buildx
-
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1  # Login to AWS ECR using AWS credentials from GitHub secrets
+      with:
+        region: us-east-1  # Specify your AWS region here
 
     - name: Build Docker image
       run: |
