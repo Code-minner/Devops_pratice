@@ -1,37 +1,35 @@
-name: Build and Push Docker Image to ECR
+name: Build and Deploy to AWS ECR
 
 on:
   push:
     branches:
-      - main  # Adjust this to the branch you want to trigger the workflow from
+      - main  # or your desired branch
 
 jobs:
-  docker-build-push:
-    runs-on: ubuntu-latest  # You can change this if you don't need Ubuntu, but it's usually safe to leave it as is.
-
+  build-and-deploy:
+    runs-on: ubuntu-latest  # You can remove this line if you don't want to use a specific runner
+    
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up AWS CLI and authenticate
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: us-east-1  # Change this to the region of your ECR repository
+          aws-region: us-east-1  # Change this to your desired AWS region
 
-      # Step 3: Log in to AWS ECR
-      - name: Log in to Amazon ECR
+      - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: us-east-1  # Add the region here, replace with your region
 
-      # Step 4: Build the Docker image
-      - name: Build Docker image
+      - name: Build and tag Docker image
         run: |
-          docker build -t public.ecr.aws/h2i8y0n3/devops-proj:latest .
+          docker build -t devops-proj .
+          docker tag devops-proj:latest public.ecr.aws/h2i8y0n3/devops-proj:latest
 
-      # Step 5: Push the Docker image to ECR
-      - name: Push Docker image to ECR
+      - name: Push Docker image to Amazon ECR
         run: |
           docker push public.ecr.aws/h2i8y0n3/devops-proj:latest
