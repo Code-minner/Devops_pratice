@@ -1,35 +1,31 @@
-name: Build and Deploy to AWS ECR
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - main  # or your desired branch
+      - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest  # You can remove this line if you don't want to use a specific runner
+  docker-build-push:
+    runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Change this to your desired AWS region
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: us-east-1  # Add the region here, replace with your region
-
-      - name: Build and tag Docker image
+      - name: Build Docker image
         run: |
-          docker build -t devops-proj .
-          docker tag devops-proj:latest public.ecr.aws/h2i8y0n3/devops-proj:latest
-
-      - name: Push Docker image to Amazon ECR
+          docker build -t myusername/myapp:latest .
+        
+      - name: Push Docker image
         run: |
-          docker push public.ecr.aws/h2i8y0n3/devops-proj:latest
+          docker push myusername/myapp:latest
