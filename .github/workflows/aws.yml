@@ -15,8 +15,6 @@ jobs:
 
     - name: Log in to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1  # Login to AWS ECR using AWS credentials from GitHub secrets
-      with:
-        region: us-east-1  # Specify your AWS region here
 
     - name: Build Docker image
       run: |
