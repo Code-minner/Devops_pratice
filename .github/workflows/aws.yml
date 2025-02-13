@@ -1,0 +1,32 @@
+name: Build and Deploy to AWS ECR
+
+on:
+  push:
+    branches:
+      - main  # Trigger the pipeline when changes are pushed to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Runs on the latest Ubuntu image
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Check out the repository code
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2  # Set up Docker Buildx
+
+    - name: Log in to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1  # Login to AWS ECR using AWS credentials from GitHub secrets
+
+    - name: Build Docker image
+      run: |
+        docker build -t devops-proj .  # Build the Docker image with the tag 'devops-proj'
+
+    - name: Tag Docker image
+      run: |
+        docker tag devops-proj:latest public.ecr.aws/h2i8y0n3/devops-proj:latest  # Tag image for ECR
+
+    - name: Push Docker image to AWS ECR
+      run: |
+        docker push public.ecr.aws/h2i8y0n3/devops-proj:latest  # Push the image to ECR
